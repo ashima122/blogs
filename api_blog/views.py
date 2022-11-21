@@ -26,8 +26,8 @@ class RegisterApi(APIView):
             })
 
 class AddBlogApi(APIView):
+     permission_classes = [IsAuthenticated]
      def post(self, request, *args,  **kwargs):
-        permission_classes = [IsAuthenticated]
         serializer = PostBlogSerializer(data=request.data)
  
         if serializer.is_valid():
@@ -43,46 +43,56 @@ class AddBlogApi(APIView):
             })
 
 class GetBlogApi(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, *args,  **kwargs):
-        permission_classes = [IsAuthenticated]
         blogs = blog.objects.all().order_by('-id')  
         serializer = GetBlogSerializer(blogs, many=True)
         return Response(serializer.data)
     
 class GetIdBlogApi(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request,id, *args,  **kwargs):
-        permission_classes = [IsAuthenticated]
         blogs = blog.objects.get(id=id)  
         serializer = GetBlogSerializer(blogs)
         return Response(serializer.data)
 
 class UpdateBlogApi(APIView):
+    permission_classes = [IsAuthenticated]
     def put(self, request,id, *args,  **kwargs):
-        permission_classes = [IsAuthenticated]
-        blogs = blog.objects.get(id=id)  
-        serializer = PostBlogSerializer(data=request.data)
-        if serializer.is_valid():
-            title = request.data['title']
-            content = request.data['content']
-            blogs.title=title
-            blogs.content=content
-            now=datetime.datetime.now()
-            blogs.updated_date=  now.strftime("%Y-%m-%d")
-            blogs.save()  
-        
+        blogs = blog.objects.get(id=id) 
+        print(request.user)
+        print(blogs.user)
+        if request.user == blogs.user:
+            serializer = PostBlogSerializer(data=request.data)
+            if serializer.is_valid():
+                title = request.data['title']
+                content = request.data['content']
+                blogs.title=title
+                blogs.content=content
+                now=datetime.datetime.now()
+                blogs.updated_date=  now.strftime("%Y-%m-%d")
+                blogs.save()  
+            
+                return Response({
+                    "message": "Blog updated Successfully",
+                })
             return Response({
-                "message": "Blog updated Successfully",
-            })
+                    "message": "Blog Not updated Successfully",
+                })
         return Response({
-                "message": "Blog Not updated Successfully",
-            })
+                    "message": "You cann't have permission to update this blog",
+                })
 
 
 class DeleteBlogApi(APIView):
+    permission_classes = [IsAuthenticated]
     def delete(self, request,id, *args,  **kwargs):
-        permission_classes = [IsAuthenticated]
         blogs = blog.objects.get(id=id)  
-        blogs.delete()
+        if request.user == blogs.user_id:
+            blogs.delete()
+            return Response({
+                    "message": "Blog deleted Successfully",
+                }) 
         return Response({
-                "message": "Blog deleted Successfully",
-            }) 
+                    "message": "You cann't have permission to delete this blog",
+                })

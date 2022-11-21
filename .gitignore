@@ -3,4 +3,7 @@ new_blog/__pycache__/
 new_blog/migrations/__pycache__/
 db.sqlite3
 media
-blog_project\__pycache__/
+blog_project/__pycache__/
+blog_project/migrations/__pycache__/
+api_blog/__pycache__/
+api_blog/migrations/__pycache__/

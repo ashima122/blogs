@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
 
-
 def register(request):
     if request.POST and request.FILES:  
         username = request.POST['username']
@@ -59,7 +58,6 @@ def show(request):
     blogs = blog.objects.all().order_by('-id')  
     get_pic = profile.objects.filter(user_id=request.user).get()
     return render(request,"index.html",{'blog':blogs,'img':get_pic})  
-    # return render(request,"index.html")
 
 @login_required(login_url="/login")
 def edit(request, id):  
